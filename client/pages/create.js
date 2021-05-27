@@ -9,21 +9,34 @@ class create extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			components: [],
+			components: [
+				{ type: 1, data: { text: "This is a section title" } },
+				{ type: 2, data: { text: "This is a sub title" } },
+				{ type: 3, data: { text: "This is a body" } },
+				{ type: 4, data: { text: "\\frac{1}{2}" } },
+				{
+					type: 5,
+					data: {
+						width: "460px",
+						height: "470px",
+						src: "https://xnought.github.io/component/",
+					},
+				},
+			],
 			data: "start",
 			index: 1,
 		};
 		this.addComponent = this.addComponent.bind(this);
 		this.editComponent = this.editComponent.bind(this);
 	}
-	addComponent(index, data) {
+	addComponent(type, data) {
 		this.setState({
-			components: [...this.state.components, { index, data }],
+			components: [...this.state.components, { type, data }],
 		});
 	}
-	editComponent(i, index, data) {
+	editComponent(i, type, data) {
 		let cpy = [...this.state.components];
-		cpy[i] = { index, data };
+		cpy[i] = { type, data };
 		this.setState({
 			components: cpy,
 		});
@@ -67,6 +80,7 @@ class create extends Component {
 					{components.map(({ index }, i) => {
 						return (
 							<div
+								key={index}
 								style={{
 									width: "100%",
 									height: "50px",

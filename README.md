@@ -1,3 +1,4 @@
-# final-project-team-27
+# Lens
+By Donald Bertucci
 
-Donald Bertucci
+Add more to this as time progresses

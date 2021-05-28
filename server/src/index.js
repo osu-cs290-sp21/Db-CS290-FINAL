@@ -1,6 +1,7 @@
 const { createPool } = require("mysql");
 const express = require("express");
 const cors = require("cors");
+const uuid = require("uuid");
 const app = express();
 const bodyParser = require("body-parser");
 require("dotenv").config();
@@ -57,17 +58,38 @@ app.get("/get/article/:articleId", (req, res) => {
 
 // Creates Article
 app.post("/post/article", (req, res) => {
-	const { title, author, img } = req.body;
-	const QUERY = `INSERT INTO ${DB_ARTICLES} (title, author, img) VALUES(?, ?, ?)`;
-	const QUERY_PARAMS = [title, author, img];
+	const { title } = req.body;
+	const uuidgen = uuid.v1();
+	const QUERY = `INSERT INTO ${DB_ARTICLES} (title, likes, dislikes, uuid) VALUES(?, ?, ?, ?)`;
+	const QUERY_PARAMS = [title, 0, 0, uuidgen];
 
 	connection.query(QUERY, QUERY_PARAMS, (errors, results) => {
 		if (results) {
-			res.status(200).json({ message: "Added to the DataBase" });
+			const SUB = `SELECT * FROM ${DB_ARTICLES} WHERE uuid = '${uuidgen}'`;
+			connection.query(SUB, (e, r) => {
+				if (r) {
+					res.status(200).json({
+						message: "Added to the DataBase",
+						id: r[0].id,
+					});
+				} else {
+					res.send(e);
+				}
+			});
 		} else {
 			res.status(404).json({ message: "Could not add to the DataBase" });
 		}
 	});
+});
+// Creates Article
+app.post("/post/test", (req, res) => {
+	// we first post the article
+	// we get article id by uuid
+	// we add all the components with the returned article id
+
+	console.log(req.body);
+	console.log(uuid.v1());
+	res.send("nice");
 });
 
 // Creates Component

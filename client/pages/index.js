@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Button } from "@material-ui/core";
 import { Brush } from "@material-ui/icons";
 import styles from "../styles/Index.module.scss";
+import axios from "axios";
 
 class index extends Component {
 	constructor(props) {
@@ -25,9 +26,8 @@ class index extends Component {
 	}
 
 	async componentDidMount() {
-		const articles = await this.get("get/articles");
-		this.setArticles(articles);
-		console.log(articles);
+		const articles = await axios.get("http://localhost:5000/get/articles");
+		this.setArticles(articles.data);
 	}
 	async getImgData(event) {
 		const file = event.target.files[0];
@@ -71,7 +71,7 @@ class index extends Component {
 					</div>
 				</div>
 				<div className={articleContainer}>
-					{articles.map(({ id, title, author }) => {
+					{articles.map(({ id, title, dislikes, likes }) => {
 						return (
 							<Link href={`article/${id}`}>
 								<div
@@ -81,7 +81,8 @@ class index extends Component {
 										console.log(id);
 									}}
 								>
-									id: {id}, title: {title}, author: {author}
+									id: {id}, title: {title}, dislikes:{" "}
+									{dislikes}, likes: {likes}
 								</div>
 							</Link>
 						);

@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import axios from "axios";
+import Renderer from "../../components/Renderer";
 async function get(path) {
 	const data = await fetch(`http://localhost:5000/${path}`);
 	const json = await data.json();
@@ -20,8 +22,12 @@ export const getStaticPaths = async () => {
 export const getStaticProps = async (context) => {
 	const { id } = context.params;
 	const data = await get(`get/components/${id}`);
+	const articleData = await axios.get(
+		`http://localhost:5000/get/article/${id}`
+	);
+	let title = articleData.data.title;
 	return {
-		props: { components: data },
+		props: { components: data, title },
 	};
 };
 class Article extends Component {
@@ -33,16 +39,29 @@ class Article extends Component {
 		console.log(JSON.stringify(this.props.components));
 	}
 	render() {
-		const { components } = this.props;
+		const { components, title } = this.props;
 		return (
 			<div>
-				{components.map((component, i) => {
-					return (
-						<div key={i}>
-							<pre>{JSON.stringify(component)}</pre>
-						</div>
-					);
-				})}
+				<div
+					style={{
+						background: "black",
+						padding: "10px",
+					}}
+				>
+					<div style={{ fontSize: "25px", color: "white" }}>
+						{title}
+					</div>
+				</div>
+				<div
+					style={{
+						display: "flex",
+						justifyContent: "center",
+					}}
+				>
+					<div style={{ width: "50%" }}>
+						<Renderer components={components}></Renderer>
+					</div>
+				</div>
 			</div>
 		);
 	}

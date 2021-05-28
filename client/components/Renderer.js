@@ -33,13 +33,16 @@ class Renderer extends Component {
 				break;
 			case embed:
 				generatedComponent = (
-					<iframe
-						frameBorder={0}
-						style={{ overflow: "hidden" }}
-						width={data.width}
-						height={data.height}
-						src={data.src}
-					></iframe>
+					<div style={{ display: "flex", justifyContent: "center" }}>
+						<iframe
+							frameBorder={0}
+							style={{ overflow: "hidden" }}
+							scrolling="no"
+							width={data.width}
+							height={data.height}
+							src={data.src}
+						></iframe>
+					</div>
 				);
 				break;
 			default:
@@ -50,13 +53,16 @@ class Renderer extends Component {
 	}
 
 	render() {
-		const { components } = this.props;
+		const { components, global } = this.props;
+		// const { title, bgColor, textColor } = global;
 		return (
-			<>
-				{components.map(({ type, data }, i) => (
-					<div key={i}>{this.match(type, data)}</div>
-				))}
-			</>
+			<div>
+				<div>
+					{components.map(({ type, data }, i) => (
+						<div key={i}>{this.match(type, data)}</div>
+					))}
+				</div>
+			</div>
 		);
 	}
 }

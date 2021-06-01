@@ -1,36 +1,8 @@
 import React, { Component } from "react";
+import axios from "axios";
 import { Button, Icon, IconButton } from "@material-ui/core";
 import { ThumbDown, ThumbUp } from "@material-ui/icons";
-import axios from "axios";
-import Renderer from "../../components/Renderer";
-async function get(path) {
-	const data = await fetch(`http://localhost:5000/${path}`);
-	const json = await data.json();
-	return json;
-}
-export const getStaticPaths = async () => {
-	const res = "placeholder";
-	const data = await get(`get/articles`);
-	const paths = data.map((item) => {
-		return {
-			params: { id: item.id.toString() },
-		};
-	});
-	return {
-		paths,
-		fallback: false,
-	};
-};
-export const getStaticProps = async (context) => {
-	const { id } = context.params;
-	const data = await get(`get/components/${id}`);
-	const articleData = await axios.get(
-		`http://localhost:5000/get/article/${id}`
-	);
-	return {
-		props: { components: data, data: articleData.data, id },
-	};
-};
+import Renderer from "./Renderer";
 class Article extends Component {
 	constructor(props) {
 		super(props);

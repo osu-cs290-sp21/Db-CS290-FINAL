@@ -1,15 +1,15 @@
 import React, { Component } from "react";
 import { Button, ButtonGroup, Box, TextField, Switch } from "@material-ui/core";
 import { Add } from "@material-ui/icons";
-import Renderer from "../components/Renderer";
-import LegendContainer from "../components/LegendContainer";
+import Renderer from "./Renderer";
+import LegendContainer from "./LegendContainer";
 import * as d3 from "d3";
 import { CompactPicker } from "react-color";
 import styles from "../styles/Create.module.scss";
 import secondary from "../styles/Index.module.scss";
 import axios from "axios";
 
-class create extends Component {
+class Create extends Component {
 	constructor(props) {
 		super(props);
 		this.schema = {
@@ -336,4 +336,4 @@ class create extends Component {
 	}
 }
 
-export default create;
+export default Create;

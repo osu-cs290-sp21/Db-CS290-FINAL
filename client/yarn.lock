@@ -179,6 +179,14 @@
   resolved "https://registry.yarnpkg.com/@next/react-refresh-utils/-/react-refresh-utils-10.2.0.tgz#55953b697769c6647f371bc6bcd865a24e1a22e9"
   integrity sha512-3I31K9B4hEQRl7yQ44Umyz+szHtuMJrNdwsgJGhoEnUCXSBRHp5wv5Zv8eDa2NewSbe53b2C0oOpivrzmdBakw==
 
+"@observablehq/plot@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@observablehq/plot/-/plot-0.1.0.tgz#d55b4c26b2982557af13db48bf0c802342cbfeac"
+  integrity sha512-jHlEGT02qjsbu/tCJjTeVybQkDx33jn20C1UtIB4ecwyDOgdo28QMKVhFHLbDkjrGYZEpTjuMq+N2x5sxRi2lw==
+  dependencies:
+    d3 "^6.7.0"
+    isoformat "^0.1.0"
+
 "@opentelemetry/api@0.14.0":
   version "0.14.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/api/-/api-0.14.0.tgz#4e17d8d2f1da72b19374efa7b6526aa001267cae"
@@ -1393,6 +1401,11 @@ isarray@^1.0.0, isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
   integrity sha1-u5NdSFgsuhaMBoNJV6VKPgcSTxE=
+
+isoformat@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/isoformat/-/isoformat-0.1.0.tgz#b693c1c9ee9ab02f1af5af41ceeae52bf501b233"
+  integrity sha512-4wCSk50Ov1PKbZ2m+YN0rUgQfF4NRkIavbhpW1mANEqD9HxBZ+j/fWk8hERq1yxn+CfWqvOac4m9axLuF0NfEw==
 
 jest-worker@27.0.0-next.5:
   version "27.0.0-next.5"

@@ -58,10 +58,10 @@ app.get("/get/article/:articleId", (req, res) => {
 
 // Creates Article
 app.post("/post/article", (req, res) => {
-	const { title } = req.body;
+	const { title, color } = req.body;
 	const uuidgen = uuid.v1();
-	const QUERY = `INSERT INTO ${DB_ARTICLES} (title, likes, dislikes, uuid) VALUES(?, ?, ?, ?)`;
-	const QUERY_PARAMS = [title, 0, 0, uuidgen];
+	const QUERY = `INSERT INTO ${DB_ARTICLES} (title, likes, dislikes, uuid, color, score) VALUES(?, ?, ?, ?, ?, ?)`;
+	const QUERY_PARAMS = [title, 0, 0, uuidgen, color, 0];
 
 	connection.query(QUERY, QUERY_PARAMS, (errors, results) => {
 		if (results) {
@@ -81,15 +81,114 @@ app.post("/post/article", (req, res) => {
 		}
 	});
 });
-// Creates Article
-app.post("/post/test", (req, res) => {
-	// we first post the article
-	// we get article id by uuid
-	// we add all the components with the returned article id
+app.post("/post/dislike", (req, res) => {
+	const { articleId } = req.body;
+	const QUERY = `SELECT * FROM ${DB_ARTICLES} WHERE id = ?`;
+	const QUERY_PARAMS = [articleId];
 
-	console.log(req.body);
-	console.log(uuid.v1());
-	res.send("nice");
+	connection.query(QUERY, QUERY_PARAMS, (errors, results) => {
+		if (results.length === 1) {
+			const { likes, dislikes } = results[0];
+			const UPDATE = `UPDATE ${DB_ARTICLES} SET ? WHERE Id = ?`;
+
+			const incDislike = dislikes + 1;
+			let payload = {
+				dislikes: incDislike,
+			};
+			connection.query(
+				UPDATE,
+				[payload, articleId],
+				(errors, results) => {
+					if (results) {
+						res.json({
+							status: "success",
+							likes,
+							dislikes: incDislike,
+						});
+					} else {
+						res.json(errors);
+					}
+				}
+			);
+		} else {
+			res.status(404).json({
+				error: errors,
+			});
+		}
+	});
+});
+
+app.post("/post/like", (req, res) => {
+	const { articleId } = req.body;
+	const QUERY = `SELECT * FROM ${DB_ARTICLES} WHERE id = ?`;
+	const QUERY_PARAMS = [articleId];
+
+	connection.query(QUERY, QUERY_PARAMS, (errors, results) => {
+		if (results.length === 1) {
+			const { likes, dislikes } = results[0];
+			const UPDATE = `UPDATE ${DB_ARTICLES} SET ? WHERE Id = ?`;
+
+			const incLike = likes + 1;
+			let payload = {
+				likes: incLike,
+			};
+			connection.query(
+				UPDATE,
+				[payload, articleId],
+				(errors, results) => {
+					if (results) {
+						res.json({
+							status: "success",
+							likes: incLike,
+							dislikes,
+						});
+					} else {
+						res.json(errors);
+					}
+				}
+			);
+		} else {
+			res.status(404).json({
+				error: errors,
+			});
+		}
+	});
+});
+
+app.post("/post/score", (req, res) => {
+	const { articleId, inc } = req.body;
+	const QUERY = `SELECT * FROM ${DB_ARTICLES} WHERE id = ?`;
+	const QUERY_PARAMS = [articleId];
+
+	connection.query(QUERY, QUERY_PARAMS, (errors, results) => {
+		if (results.length === 1) {
+			const { score } = results[0];
+			const UPDATE = `UPDATE ${DB_ARTICLES} SET ? WHERE Id = ?`;
+
+			const newScore = inc ? score + 1 : score - 1;
+			let payload = {
+				score: newScore,
+			};
+			connection.query(
+				UPDATE,
+				[payload, articleId],
+				(errors, results) => {
+					if (results) {
+						res.json({
+							status: "success",
+							score: newScore,
+						});
+					} else {
+						res.json(errors);
+					}
+				}
+			);
+		} else {
+			res.status(404).json({
+				error: errors,
+			});
+		}
+	});
 });
 
 // Creates Component

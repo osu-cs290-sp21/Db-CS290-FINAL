@@ -38,15 +38,47 @@
 	.article {
 		margin: 10px;
 		display: flex;
-		width: 150px;
-		height: 200px;
+		width: 500px;
+		height: 100px;
 		border: 3px black solid;
 		border-radius: 5px;
 		&:hover {
-			background-color: transparentize($color: black, $amount: 0.95);
-			box-shadow: 1px 1px 2px black, 0 0 25px white, 0 0 5px grey;
+			// background-color: transparentize($color: black, $amount: 0.8);
 			// border: 2px $primary solid;
 			cursor: pointer;
 		}
+		.articleTitle {
+			font-size: 25px;
+			position: relative;
+			top: 50%;
+			left: 10px;
+		}
+	}
+}
+.inputter {
+	display: flex;
+	padding: 5px;
+	border-radius: 5px;
+	align-items: center;
+	background-color: white;
+	border: 1px solid rgba(189, 189, 189, 0.536);
+	width: 200px;
+
+	.searchIcon {
+		margin-left: 5px;
+		margin-right: 10px;
+	}
+	.searchBase {
+		flex: 1;
+	}
+	.searchClose {
+		margin-left: 10px;
+		&:hover {
+			color: $primary;
+		}
+	}
+
+	&:hover {
+		background-color: darken($color: #ffff, $amount: 5);
 	}
 }

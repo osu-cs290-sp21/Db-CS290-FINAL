@@ -32,7 +32,7 @@ class Article extends Component {
 		const { title, color } = data;
 		return (
 			<div>
-				<div
+				{/* <div
 					style={{
 						background: color,
 						padding: "10px",
@@ -41,7 +41,7 @@ class Article extends Component {
 					<div style={{ fontSize: "25px", color: "white" }}>
 						{title}
 					</div>
-				</div>
+				</div> */}
 				<div>score: {this.state.score}</div>
 				<div>
 					<Button

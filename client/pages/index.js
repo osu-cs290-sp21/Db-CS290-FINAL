@@ -3,6 +3,8 @@ import Head from "next/head";
 import Article from "../components/Article";
 import * as d3 from "d3";
 import Create from "../components/Create";
+import Discover from "../components/Discover";
+import { Alert } from "@material-ui/lab";
 import {
 	Button,
 	Select,
@@ -19,18 +21,41 @@ import {
 	CardContent,
 	CardActions,
 	IconButton,
+	Snackbar,
+	Switch,
 } from "@material-ui/core";
 import { Brush, Search, Close, Add } from "@material-ui/icons";
 import styles from "../styles/Index.module.scss";
 import axios from "axios";
 const theme = createMuiTheme({
 	palette: {
-		primary: { main: "#d04853" },
+		primary: { main: "#000000" },
 		secondary: { main: "#000000" },
 	},
 });
 function deepCopy(array) {
 	return JSON.parse(JSON.stringify(array));
+}
+function addOpacityRGB(color, opacity) {
+	let colorArray = color.split("");
+	colorArray.pop();
+	colorArray.push(`,${opacity})`);
+	return colorArray.join("");
+}
+
+function getMinMax(array, { attr = undefined } = {}) {
+	let min = Infinity;
+	let max = 0;
+	const isDefined = typeof attr !== "undefined";
+	array.forEach((item) => {
+		const curr = isDefined ? item[attr] : item;
+		if (curr > max) {
+			max = curr;
+		} else if (curr <= min) {
+			min = curr;
+		}
+	});
+	return { max, min };
 }
 
 class index extends Component {
@@ -53,12 +78,25 @@ class index extends Component {
 			components: [],
 			selectedSort: "best",
 			search: "",
+			snackbar: {
+				open: false,
+				message: "",
+			},
+			isCircle: false,
+			showLines: true,
+			min: Infinity,
+			max: 0,
 		};
 
 		this.setArticles = this.setArticles.bind(this);
 		this.getArticle = this.getArticle.bind(this);
 		this.changeView = this.changeView.bind(this);
 		this.sortScore = this.sortScore.bind(this);
+		this.message = this.message.bind(this);
+	}
+	message({ message = "", open = false } = {}) {
+		const snackbar = { open, message };
+		this.setState({ snackbar });
 	}
 
 	async get(path) {
@@ -88,6 +126,12 @@ class index extends Component {
 		await this.setArticles();
 		this.sortScore((a, b) => b.score - a.score);
 		await this.getArticle(this.state.mutatedArticles[0].id);
+		const max = this.state.mutatedArticles[0].score;
+		const min =
+			this.state.mutatedArticles[this.state.mutatedArticles.length - 1]
+				.score;
+
+		this.setState({ min, max });
 
 		// this.sortScore((a, b) => a.score - b.score);
 		// this.sortScore((a, b) => b.id - a.id);
@@ -153,7 +197,33 @@ class index extends Component {
 		} = styles;
 		const upper = 100;
 		const lower = -100;
-		const { articles } = this.state;
+		const { articles, snackbar } = this.state;
+
+		const colorScale = d3
+			.scaleLinear()
+			.domain([this.state.min, this.state.max])
+			.range([1, 0]);
+		const getColor = (input) => d3.interpolateWarm(colorScale(input));
+		const discover = (
+			<div>
+				<Switch
+					onChange={() => {
+						this.setState({ isCircle: !this.state.isCircle });
+					}}
+					color="primary"
+				></Switch>
+				<Switch
+					onChange={() => {
+						this.setState({ showLines: !this.state.showLines });
+					}}
+				></Switch>
+				<Discover
+					data={articles}
+					isCircle={this.state.isCircle}
+					showLines={this.state.showLines}
+				/>
+			</div>
+		);
 		const homePage = (
 			<div style={{ marginLeft: "100px", marginTop: "50px" }}>
 				<div style={{ display: "flex" }}>
@@ -165,7 +235,6 @@ class index extends Component {
 							<InputBase
 								value={this.state.search}
 								fullWidth
-								label
 								placeholder="Search Titles"
 								onChange={(e) => {
 									const value = e.target.value;
@@ -231,9 +300,13 @@ class index extends Component {
 									className={article}
 									style={{
 										borderColor: !selected
-											? this.colors(scoreNorm)
-											: "red",
-										background: this.colors(scoreNorm),
+											? "none"
+											: getColor(score),
+
+										background: addOpacityRGB(
+											getColor(score),
+											0.2
+										),
 									}}
 									onClick={async () => {
 										await this.getArticle(id);
@@ -243,11 +316,7 @@ class index extends Component {
 								>
 									<div
 										style={{
-											color:
-												scoreNorm > 0.8 ||
-												scoreNorm < 0.2
-													? "white"
-													: "black",
+											color: getColor(score),
 										}}
 										className={articleTitle}
 									>
@@ -272,7 +341,6 @@ class index extends Component {
 				></Article>
 			);
 		};
-		const discover = <div>discover my ass</div>;
 		const views = [
 			discover,
 			homePage,
@@ -335,6 +403,27 @@ class index extends Component {
 						</div>
 					</div>
 					{views[this.state.selectedView]}
+					<Button
+						onClick={() => {
+							this.message({ message: "Liked Post", open: true });
+						}}
+					>
+						OPEN
+					</Button>
+					<Snackbar
+						open={snackbar.open}
+						anchorOrigin={{
+							vertical: "bottom",
+							horizontal: "left",
+						}}
+						autoHideDuration={3000}
+						onClose={() => {
+							this.message();
+						}}
+						// message={snackbar.message}
+					>
+						<Alert>{snackbar.message}</Alert>
+					</Snackbar>
 				</div>
 			</ThemeProvider>
 		);

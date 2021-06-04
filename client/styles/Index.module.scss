@@ -40,7 +40,7 @@
 		display: flex;
 		width: 500px;
 		height: 100px;
-		border: 3px black solid;
+		border: 3px #00000000 solid;
 		border-radius: 5px;
 		&:hover {
 			// background-color: transparentize($color: black, $amount: 0.8);

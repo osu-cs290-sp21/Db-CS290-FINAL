@@ -238,7 +238,7 @@ class Create extends Component {
 											});
 										}}
 									/>
-									<CompactPicker
+									{/* <CompactPicker
 										// triangle="hide"
 										onChange={(color, event) => {
 											this.setState({
@@ -251,7 +251,7 @@ class Create extends Component {
 										// 	...d3.schemeTableau10,
 										// 	...d3.schemeSpectral[10],
 										// ]}
-									/>
+									/> */}
 								</div>
 							</div>
 						</LegendContainer>

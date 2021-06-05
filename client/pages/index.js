@@ -65,9 +65,8 @@ class index extends Component {
 		this.myRef = React.createRef();
 		this.views = [
 			{ name: "Home", index: 0 },
-			{ name: "Search", index: 1 },
-			{ name: "Current Article", index: 2 },
-			{ name: "Create", index: 3 },
+			{ name: "Current Article", index: 1 },
+			{ name: "Create", index: 2 },
 		];
 		this.state = {
 			articles: [],
@@ -93,6 +92,7 @@ class index extends Component {
 		this.changeView = this.changeView.bind(this);
 		this.sortScore = this.sortScore.bind(this);
 		this.message = this.message.bind(this);
+		this.reload = this.reload.bind(this);
 	}
 	message({ message = "", open = false } = {}) {
 		const snackbar = { open, message };
@@ -115,23 +115,25 @@ class index extends Component {
 		const article = await axios.get(
 			`http://localhost:5000/get/article/${articleId}`
 		);
-		this.views[2].name = article.data.title;
+		this.views[1].name = article.data.title;
 		this.setState({
 			components: components.data,
 			selectedArticle: article.data,
 		});
 	}
+	async reload(callback) {
+		await this.setArticles();
+		this.sortScore(callback);
+		await this.getArticle(this.state.mutatedArticles[0].id);
+		const { min, max } = getMinMax(this.state.mutatedArticles, {
+			attr: "score",
+		});
+
+		this.setState({ min, max, search: "" });
+	}
 
 	async componentDidMount() {
-		await this.setArticles();
-		this.sortScore((a, b) => b.score - a.score);
-		await this.getArticle(this.state.mutatedArticles[0].id);
-		const max = this.state.mutatedArticles[0].score;
-		const min =
-			this.state.mutatedArticles[this.state.mutatedArticles.length - 1]
-				.score;
-
-		this.setState({ min, max });
+		this.reload((a, b) => b.score - a.score);
 
 		// this.sortScore((a, b) => a.score - b.score);
 		// this.sortScore((a, b) => b.id - a.id);
@@ -154,7 +156,16 @@ class index extends Component {
 			return "";
 		}
 	}
-	changeView(view) {
+	async changeView(view) {
+		// await this.setArticles();
+		// this.sortScore((a, b) => b.score - a.score);
+		// await this.getArticle(this.state.mutatedArticles[0].id);
+		// const max = this.state.mutatedArticles[0].score;
+		// const min =
+		// 	this.state.mutatedArticles[this.state.mutatedArticles.length - 1]
+		// 		.score;
+
+		// this.setState({ min, max });
 		this.setState({ selectedView: view });
 	}
 	sortScore(callback, { search = "" } = {}) {
@@ -203,6 +214,22 @@ class index extends Component {
 			.scaleLinear()
 			.domain([this.state.min, this.state.max])
 			.range([1, 0]);
+
+		function highlight(id, score) {
+			d3.select(`#articleId${id}`).style(
+				"border",
+				`3px solid ${getColor(score)}`
+			);
+			d3.select(`#text${id}`).attr("fill", getColor(score));
+			d3.selectAll(`.id${id}`).attr("opacity", 1.0).raise();
+			d3.selectAll(`.boxid${id}`).attr("stroke", "#bababa99").raise();
+		}
+		function hide(id) {
+			d3.select(`#articleId${id}`).style("border", `3px solid #00000000`);
+			d3.select(`#text${id}`).attr("fill", "#00000000");
+			d3.selectAll(`.id${id}`).attr("opacity", 0.3);
+			d3.selectAll(`.boxid${id}`).attr("stroke", "#cccccc0");
+		}
 		const getColor = (input) => d3.interpolateWarm(colorScale(input));
 		const discover = (
 			<div>
@@ -218,7 +245,9 @@ class index extends Component {
 					}}
 				></Switch>
 				<Discover
-					data={articles}
+					data={this.state.mutatedArticles}
+					min={this.state.min}
+					max={this.state.max}
 					isCircle={this.state.isCircle}
 					showLines={this.state.showLines}
 				/>
@@ -264,29 +293,65 @@ class index extends Component {
 							""
 						)}
 					</div>
-					<div>
-						<InputLabel id="select">Sort</InputLabel>
-						<Select
-							labelId="select"
-							value={this.state.selectedSort}
-							onChange={(e) => {
-								const value = e.target.value;
-								let callback = this.getSortFunction(value);
-								this.sortScore(callback, {
-									search: this.state.search,
-								});
+					<div style={{ display: "flex" }}>
+						<div>
+							<InputLabel id="select">Sort</InputLabel>
+							<Select
+								labelId="select"
+								value={this.state.selectedSort}
+								onChange={(e) => {
+									const value = e.target.value;
+									let callback = this.getSortFunction(value);
+									this.sortScore(callback, {
+										search: this.state.search,
+									});
 
-								this.setState({ selectedSort: value });
-							}}
-							displayEmpty
-							//   inputProps={{ 'aria-label': 'Without label' }}
-						>
-							<MenuItem value={"best"}>Highest Score</MenuItem>
-							<MenuItem value={"worst"}>Lowest Score</MenuItem>
-							<MenuItem value={"new"}>New Articles</MenuItem>
-						</Select>
+									this.message({
+										message: `Now Showing ${value} first`,
+										open: true,
+									});
+									this.setState({ selectedSort: value });
+								}}
+								displayEmpty
+								//   inputProps={{ 'aria-label': 'Without label' }}
+							>
+								<MenuItem value={"best"}>
+									Highest Score
+								</MenuItem>
+								<MenuItem value={"worst"}>
+									Lowest Score
+								</MenuItem>
+								<MenuItem value={"new"}>New Articles</MenuItem>
+							</Select>
+						</div>
+
+						<div style={{ display: "flex", alignItems: "center" }}>
+							<Switch
+								onChange={() => {
+									this.setState({
+										showLines: !this.state.showLines,
+									});
+								}}
+								defaultChecked
+							></Switch>
+							<p>Show Bars</p>
+						</div>
 					</div>
 				</div>
+
+				<div style={{ marginTop: "15px" }}></div>
+				<Discover
+					data={this.state.mutatedArticles}
+					min={this.state.min}
+					max={this.state.max}
+					isCircle={this.state.isCircle}
+					showLines={this.state.showLines}
+					exec={async (id) => {
+						await this.getArticle(id);
+						this.changeView(1);
+						console.log(id);
+					}}
+				/>
 
 				<div className={articleContainer}>
 					{this.state.mutatedArticles.map(
@@ -297,11 +362,12 @@ class index extends Component {
 							return (
 								<div
 									key={id}
+									id={`articleId${id}`}
 									className={article}
 									style={{
-										borderColor: !selected
-											? "none"
-											: getColor(score),
+										// borderColor: false
+										// 	? "none"
+										// 	: getColor(score),
 
 										background: addOpacityRGB(
 											getColor(score),
@@ -309,9 +375,16 @@ class index extends Component {
 										),
 									}}
 									onClick={async () => {
+										console.log(id);
 										await this.getArticle(id);
-										this.changeView(2);
+										this.changeView(1);
 										console.log(score);
+									}}
+									onMouseEnter={() => {
+										highlight(id, score);
+									}}
+									onMouseLeave={() => {
+										hide(id);
 									}}
 								>
 									<div
@@ -342,7 +415,6 @@ class index extends Component {
 			);
 		};
 		const views = [
-			discover,
 			homePage,
 			articleView(
 				this.state.selectedArticle,
@@ -359,7 +431,13 @@ class index extends Component {
 							{this.views[this.state.selectedView].name}
 						</title>
 					</Head>
-					<div className={navbar}>
+					<div style={{ marginBottom: "75px" }}></div>
+
+					{views[this.state.selectedView]}
+					<div
+						className={navbar}
+						style={{ position: "fixed", top: 0, left: 0 }}
+					>
 						<div
 							className={title}
 							onClick={async () => {
@@ -381,10 +459,17 @@ class index extends Component {
 											label={view.name}
 											onClick={() => {
 												this.changeView(view.index);
+
+												let callback =
+													this.getSortFunction(
+														this.state.selectedSort
+													);
+												console.log(callback);
+												this.reload(callback);
 											}}
 										/>
 									);
-									return i < 3 ? el : "";
+									return i < 2 ? el : "";
 								})}
 							</Tabs>
 						</div>
@@ -395,26 +480,18 @@ class index extends Component {
 								color="primary"
 								startIcon={<Add />}
 								onClick={() => {
-									this.changeView(3);
+									this.changeView(2);
 								}}
 							>
 								Create Article
 							</Button>
 						</div>
 					</div>
-					{views[this.state.selectedView]}
-					<Button
-						onClick={() => {
-							this.message({ message: "Liked Post", open: true });
-						}}
-					>
-						OPEN
-					</Button>
 					<Snackbar
 						open={snackbar.open}
 						anchorOrigin={{
-							vertical: "bottom",
-							horizontal: "left",
+							vertical: "top",
+							horizontal: "center",
 						}}
 						autoHideDuration={3000}
 						onClose={() => {
@@ -422,7 +499,7 @@ class index extends Component {
 						}}
 						// message={snackbar.message}
 					>
-						<Alert>{snackbar.message}</Alert>
+						<Alert severity="info">{snackbar.message}</Alert>
 					</Snackbar>
 				</div>
 			</ThemeProvider>

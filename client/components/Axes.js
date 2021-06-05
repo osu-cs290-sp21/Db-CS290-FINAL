@@ -7,7 +7,7 @@ class Axes extends Component {
 		this.myRef = React.createRef();
 		this.state = {};
 	}
-	componentDidUpdate() {
+	createAxes() {
 		let xScale = this.props.xScale;
 		let xAxis = d3.axisTop().scale(xScale);
 		d3.select(this.myRef.current)
@@ -17,7 +17,12 @@ class Axes extends Component {
 			.duration(1000)
 			.ease(d3.easeExpInOut)
 			.call(xAxis.ticks(this.props.ticks));
-		console.log("working");
+	}
+	componentDidMount() {
+		this.createAxes();
+	}
+	componentDidUpdate() {
+		this.createAxes();
 	}
 	render() {
 		const { width, height } = this.props;

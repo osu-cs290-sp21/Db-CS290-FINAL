@@ -430,10 +430,10 @@ class index extends Component {
 					>
 						<div
 							className={title}
-							onClick={async () => {
-								await this.setArticles();
-								this.changeView(0);
-							}}
+							// onClick={async () => {
+							// 	await this.setArticles();
+							// 	this.changeView(0);
+							// }}
 						>
 							CONSENSUS
 						</div>

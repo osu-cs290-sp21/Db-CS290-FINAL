@@ -28,7 +28,7 @@ class Axes extends Component {
 	render() {
 		const { width, height } = this.props;
 		return (
-			<svg width={width} height={height}>
+			<svg width={width} height={height} style={{ overflow: "visible" }}>
 				<g ref={this.myRef}></g>
 			</svg>
 		);

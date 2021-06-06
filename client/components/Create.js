@@ -2,24 +2,18 @@ import React, { Component } from "react";
 import {
 	Button,
 	ButtonGroup,
-	Box,
 	TextField,
-	Switch,
 	InputBase,
 	Dialog,
 	DialogContent,
 	DialogActions,
-	Card,
-	CardContent,
 	Divider,
 	IconButton,
-	Slider,
 } from "@material-ui/core";
 import { Add, Close } from "@material-ui/icons";
 import Renderer from "./Renderer";
 import LegendContainer from "./LegendContainer";
 import * as d3 from "d3";
-// import { CompactPicker } from "react-color";
 import styles from "../styles/Create.module.scss";
 import secondary from "../styles/Index.module.scss";
 import axios from "axios";
@@ -234,11 +228,6 @@ class Create extends Component {
 			</div>
 		);
 	}
-	// addComponent(type, data) {
-	// 	this.setState({
-	// 		components: [...this.state.components, { type, data }],
-	// 	});
-	// }
 	async post() {
 		// add article information first
 		const title = this.state.title;
@@ -261,14 +250,9 @@ class Create extends Component {
 			);
 		});
 	}
-	componentDidUpdate() {
-		// console.log(JSON.stringify(this.state.components));
-	}
 	render() {
-		const { paper, title, container, document, editor } = styles;
-		const { navbar, story, button } = secondary;
-		const navtitle = secondary.title;
-		const { components, index, data, selected } = this.state;
+		const { container, document, editor } = styles;
+		const { components, selected } = this.state;
 		const names = [
 			{ name: "Section Title", type: 1 },
 			{ name: "Subtitle", type: 2 },
@@ -276,7 +260,6 @@ class Create extends Component {
 			{ name: "Tex", type: 4 },
 			{ name: "Embed", type: 5 },
 		];
-		let slideCount = 0;
 		return (
 			<div className={container}>
 				<div className={editor}>

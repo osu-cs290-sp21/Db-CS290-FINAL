@@ -1,5 +1,10 @@
 # API REFERENCE
 
+## To get up and running
+
+1. Update the .env with correct information to connect to mySQL db
+2. `yarn dev`
+
 ## GET Requests
 
 Below are the getters, structured by takes (url argument) followed by what gets

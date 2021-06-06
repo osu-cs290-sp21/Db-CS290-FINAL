@@ -2,24 +2,18 @@ import React, { Component } from "react";
 import {
 	Button,
 	ButtonGroup,
-	Box,
 	TextField,
-	Switch,
 	InputBase,
 	Dialog,
 	DialogContent,
 	DialogActions,
-	Card,
-	CardContent,
 	Divider,
 	IconButton,
-	Slider,
 } from "@material-ui/core";
 import { Add, Close } from "@material-ui/icons";
 import Renderer from "./Renderer";
 import LegendContainer from "./LegendContainer";
 import * as d3 from "d3";
-// import { CompactPicker } from "react-color";
 import styles from "../styles/Create.module.scss";
 import secondary from "../styles/Index.module.scss";
 import axios from "axios";
@@ -155,38 +149,63 @@ class Create extends Component {
 			case embed:
 				form = (
 					<LegendContainer name={"Embed"} color={color}>
-						<div style={{ color: "#d04853" }}>width</div>
-						<Slider
-							valueLabelDisplay="auto"
-							min={0}
-							max={2000}
-							value={currData.width}
-							style={{ color: "#d04853" }}
-							onChange={(e, n) => {
-								this.editEmbed(index, "", n, -1);
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "space-between",
 							}}
-						></Slider>
-						<div style={{ color: "#155676" }}>height</div>
-						<Slider
-							value={currData.height}
-							valueLabelDisplay="auto"
-							style={{ color: "#155676" }}
-							min={0}
-							max={2000}
-							onChange={(e, n) => {
-								this.editEmbed(index, "", -1, n);
-							}}
-						></Slider>
-						<InputBase
-							label={"Link Source"}
-							variant="filled"
-							value={currData.src}
-							fullWidth
-							placeholder="url..."
-							onChange={(e) => {
-								this.editEmbed(index, e.target.value, -1, -1);
-							}}
-						/>
+						>
+							<div>
+								<TextField
+									label={"Link Source"}
+									variant="filled"
+									value={currData.src}
+									placeholder="url..."
+									onChange={(e) => {
+										this.editEmbed(
+											index,
+											e.target.value,
+											-1,
+											-1
+										);
+									}}
+								/>
+							</div>
+							<div>
+								<TextField
+									color="secondary"
+									label={"Height"}
+									type="number"
+									variant="filled"
+									value={currData.height}
+									onChange={(e) => {
+										this.editEmbed(
+											index,
+											"",
+											-1,
+											e.target.value
+										);
+									}}
+								/>
+							</div>
+							<div>
+								<TextField
+									color="secondary"
+									label={"Width"}
+									type="number"
+									variant="filled"
+									value={currData.width}
+									onChange={(e) => {
+										this.editEmbed(
+											index,
+											"",
+											e.target.value,
+											-1
+										);
+									}}
+								/>
+							</div>
+						</div>
 					</LegendContainer>
 				);
 				break;
@@ -209,11 +228,6 @@ class Create extends Component {
 			</div>
 		);
 	}
-	// addComponent(type, data) {
-	// 	this.setState({
-	// 		components: [...this.state.components, { type, data }],
-	// 	});
-	// }
 	async post() {
 		// add article information first
 		const title = this.state.title;
@@ -236,14 +250,9 @@ class Create extends Component {
 			);
 		});
 	}
-	componentDidUpdate() {
-		// console.log(JSON.stringify(this.state.components));
-	}
 	render() {
-		const { paper, title, container, document, editor } = styles;
-		const { navbar, story, button } = secondary;
-		const navtitle = secondary.title;
-		const { components, index, data, selected } = this.state;
+		const { container, document, editor } = styles;
+		const { components, selected } = this.state;
 		const names = [
 			{ name: "Section Title", type: 1 },
 			{ name: "Subtitle", type: 2 },

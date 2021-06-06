@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import axios from "axios";
-import { Button, Icon, IconButton } from "@material-ui/core";
+import { IconButton } from "@material-ui/core";
 import {
 	ThumbDown,
 	ThumbUp,
@@ -29,11 +29,8 @@ class Article extends Component {
 			score: result.data.score,
 		});
 	}
-	componentDidMount() {}
-	componentWillUnmount() {}
 	render() {
-		const { components, data, id, reset } = this.props;
-		const { title, color } = data;
+		const { components, id } = this.props;
 
 		return (
 			<div>

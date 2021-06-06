@@ -4,27 +4,19 @@ import Article from "../components/Article";
 import * as d3 from "d3";
 import Create from "../components/Create";
 import Discover from "../components/Discover";
-import { Alert } from "@material-ui/lab";
 import {
 	Button,
 	Select,
 	MenuItem,
 	InputLabel,
-	Paper,
 	Tab,
 	Tabs,
 	ThemeProvider,
 	createMuiTheme,
 	InputBase,
-	Input,
-	Card,
-	CardContent,
-	CardActions,
-	IconButton,
-	Snackbar,
 	Switch,
 } from "@material-ui/core";
-import { Brush, Search, Close, Add } from "@material-ui/icons";
+import { Search, Close, Add } from "@material-ui/icons";
 import styles from "../styles/Index.module.scss";
 import axios from "axios";
 const theme = createMuiTheme({
@@ -77,10 +69,6 @@ class index extends Component {
 			components: [],
 			selectedSort: "best",
 			search: "",
-			snackbar: {
-				open: false,
-				message: "",
-			},
 			isCircle: false,
 			showLines: true,
 			min: Infinity,
@@ -91,12 +79,7 @@ class index extends Component {
 		this.getArticle = this.getArticle.bind(this);
 		this.changeView = this.changeView.bind(this);
 		this.sortScore = this.sortScore.bind(this);
-		this.message = this.message.bind(this);
 		this.reload = this.reload.bind(this);
-	}
-	message({ message = "", open = false } = {}) {
-		const snackbar = { open, message };
-		this.setState({ snackbar });
 	}
 
 	async get(path) {
@@ -179,8 +162,14 @@ class index extends Component {
 				return title.toLowerCase().includes(search.toLowerCase());
 			});
 			const sortedArticles = filteredDown.sort((a, b) => callback(a, b));
+			let { min, max } = getMinMax(sortedArticles, {
+				attr: "score",
+			});
+			if (min === max) {
+				min = 0;
+			}
 
-			this.setState({ mutatedArticles: sortedArticles });
+			this.setState({ mutatedArticles: sortedArticles, min, max });
 		}
 	}
 	getSortFunction(value) {
@@ -200,7 +189,6 @@ class index extends Component {
 			navbar,
 			story,
 			title,
-			button,
 			article,
 			articleContainer,
 			articleTitle,
@@ -209,15 +197,12 @@ class index extends Component {
 			searchIcon,
 			searchClose,
 		} = styles;
-		const upper = 100;
-		const lower = -100;
-		const { articles, snackbar } = this.state;
 
+		// global highlighting
 		const colorScale = d3
 			.scaleLinear()
 			.domain([this.state.min, this.state.max])
 			.range([1, 0]);
-
 		function highlight(id, score) {
 			d3.select(`#articleId${id}`).style(
 				"border",
@@ -309,10 +294,6 @@ class index extends Component {
 										search: this.state.search,
 									});
 
-									this.message({
-										message: `Now Showing ${value} first`,
-										open: true,
-									});
 									this.setState({ selectedSort: value });
 								}}
 								displayEmpty
@@ -358,9 +339,6 @@ class index extends Component {
 				<div className={articleContainer}>
 					{this.state.mutatedArticles.map(
 						({ id, title, color, score }) => {
-							const scoreNorm = score / upper + 0.5;
-							const selected =
-								this.state.selectedArticle.id === id;
 							return (
 								<div
 									key={id}
@@ -503,20 +481,6 @@ class index extends Component {
 							</Button>
 						</div>
 					</div>
-					<Snackbar
-						open={snackbar.open}
-						anchorOrigin={{
-							vertical: "top",
-							horizontal: "center",
-						}}
-						autoHideDuration={3000}
-						onClose={() => {
-							this.message();
-						}}
-						// message={snackbar.message}
-					>
-						<Alert severity="info">{snackbar.message}</Alert>
-					</Snackbar>
 				</div>
 			</ThemeProvider>
 		);

@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import "katex/dist/katex.min.css";
 import { BlockMath } from "react-katex";
+
 class Renderer extends Component {
 	constructor(props) {
 		super(props);
@@ -14,9 +15,9 @@ class Renderer extends Component {
 		this.state = {};
 	}
 
+	// function to match components -> convert this to classes to improve
 	match(type, data) {
 		let generatedComponent;
-
 		const { sectionTitle, subTitle, body, tex, embed } = this.schema;
 		switch (type) {
 			case sectionTitle:
@@ -53,8 +54,7 @@ class Renderer extends Component {
 	}
 
 	render() {
-		const { components, global } = this.props;
-		// const { title, bgColor, textColor } = global;
+		const { components } = this.props;
 		return (
 			<div>
 				{components.map(({ type, data }, i) => (

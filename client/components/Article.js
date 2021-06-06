@@ -1,15 +1,20 @@
 import React, { Component } from "react";
 import axios from "axios";
 import { Button, Icon, IconButton } from "@material-ui/core";
-import { ThumbDown, ThumbUp } from "@material-ui/icons";
+import {
+	ThumbDown,
+	ThumbUp,
+	ThumbDownOutlined,
+	ThumbUpOutlined,
+} from "@material-ui/icons";
 import Renderer from "./Renderer";
 class Article extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
 			selected: false,
-			likeSelected: false,
-			dislikeSelected: false,
+			likeSelected: null,
+			dislikeSelected: true,
 			score: props.data.score,
 		};
 		this.inc = this.inc.bind(this);
@@ -24,58 +29,78 @@ class Article extends Component {
 			score: result.data.score,
 		});
 	}
-	componentDidMount() {
-		console.log(JSON.stringify(this.props.components));
-	}
+	componentDidMount() {}
+	componentWillUnmount() {}
 	render() {
-		const { components, data, id } = this.props;
+		const { components, data, id, reset } = this.props;
 		const { title, color } = data;
+
 		return (
 			<div>
-				{/* <div
+				<div
 					style={{
-						background: color,
-						padding: "10px",
+						display: "flex",
+						alignItems: "center",
+						position: "absolute",
+						left: 10,
+						top: 80,
 					}}
 				>
-					<div style={{ fontSize: "25px", color: "white" }}>
-						{title}
-					</div>
-				</div> */}
-				<div>score: {this.state.score}</div>
-				<div>
-					<Button
+					<div style={{ fontSize: "20px" }}>{this.state.score}</div>
+					<IconButton
+						color="primary"
 						onClick={async () => {
-							this.setState({
-								dislikeSelected: false,
-								likeSelected: true,
-							});
-							await this.inc(id, true);
+							if (this.state.likeSelected === null) {
+								this.setState({
+									dislikeSelected: false,
+									likeSelected: true,
+								});
+								await this.inc(id, true);
+							} else if (!this.state.likeSelected) {
+								this.setState({
+									dislikeSelected: false,
+									likeSelected: true,
+								});
+								await this.inc(id, true);
+								await this.inc(id, true);
+							}
 						}}
-						variant="outlined"
-						style={{
-							color: this.state.likeSelected ? color : "",
-						}}
-						startIcon={<ThumbUp></ThumbUp>}
 					>
-						Accept
-					</Button>{" "}
-					<Button
+						{this.state.likeSelected === null ? (
+							<ThumbUpOutlined />
+						) : this.state.likeSelected ? (
+							<ThumbUp />
+						) : (
+							<ThumbUpOutlined />
+						)}
+					</IconButton>{" "}
+					<IconButton
+						color="primary"
 						onClick={async () => {
-							this.setState({
-								dislikeSelected: true,
-								likeSelected: false,
-							});
-							await this.inc(id, false);
+							if (this.state.likeSelected === null) {
+								this.setState({
+									dislikeSelected: true,
+									likeSelected: false,
+								});
+								await this.inc(id, false);
+							} else if (this.state.likeSelected) {
+								this.setState({
+									dislikeSelected: true,
+									likeSelected: false,
+								});
+								await this.inc(id, false);
+								await this.inc(id, false);
+							}
 						}}
-						variant="outlined"
-						style={{
-							color: this.state.dislikeSelected ? color : "",
-						}}
-						startIcon={<ThumbDown></ThumbDown>}
 					>
-						Reject
-					</Button>
+						{this.state.likeSelected === null ? (
+							<ThumbDownOutlined />
+						) : this.state.likeSelected ? (
+							<ThumbDownOutlined />
+						) : (
+							<ThumbDown />
+						)}
+					</IconButton>
 				</div>
 				<div
 					style={{

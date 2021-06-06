@@ -57,11 +57,9 @@ class Renderer extends Component {
 		// const { title, bgColor, textColor } = global;
 		return (
 			<div>
-				<div>
-					{components.map(({ type, data }, i) => (
-						<div key={i}>{this.match(type, data)}</div>
-					))}
-				</div>
+				{components.map(({ type, data }, i) => (
+					<div key={i}>{this.match(type, data)}</div>
+				))}
 			</div>
 		);
 	}

@@ -1,10 +1,25 @@
 import React, { Component } from "react";
-import { Button, ButtonGroup, Box, TextField, Switch } from "@material-ui/core";
-import { Add } from "@material-ui/icons";
+import {
+	Button,
+	ButtonGroup,
+	Box,
+	TextField,
+	Switch,
+	InputBase,
+	Dialog,
+	DialogContent,
+	DialogActions,
+	Card,
+	CardContent,
+	Divider,
+	IconButton,
+	Slider,
+} from "@material-ui/core";
+import { Add, Close } from "@material-ui/icons";
 import Renderer from "./Renderer";
 import LegendContainer from "./LegendContainer";
 import * as d3 from "d3";
-import { CompactPicker } from "react-color";
+// import { CompactPicker } from "react-color";
 import styles from "../styles/Create.module.scss";
 import secondary from "../styles/Index.module.scss";
 import axios from "axios";
@@ -23,14 +38,16 @@ class Create extends Component {
 			components: [],
 			data: "start",
 			index: 1,
-			color: "coral",
+			color: "black",
 			title: "",
 			selected: 1,
+			showDialog: false,
 		};
 		this.addComponent = this.addComponent.bind(this);
 		this.editText = this.editText.bind(this);
 		this.editEmbed = this.editEmbed.bind(this);
 		this.post = this.post.bind(this);
+		this.remove = this.remove.bind(this);
 	}
 	addTemplate(type) {
 		let data;
@@ -78,8 +95,13 @@ class Create extends Component {
 		const template = this.addTemplate(type);
 		this.setState({ components: [...this.state.components, template] });
 	}
+	remove(index) {
+		let cpy = this.state.components;
+		cpy.splice(index, 1);
+		this.setState({ components: cpy });
+	}
 	color(type) {
-		return d3.schemeTableau10[type];
+		return d3.schemeSet1[type - 1];
 	}
 	match(type, index) {
 		let form;
@@ -88,8 +110,9 @@ class Create extends Component {
 		const { sectionTitle, subTitle, body, tex, embed } = this.schema;
 		const color = this.color(type);
 		const text = (label) => (
-			<TextField
+			<InputBase
 				color="secondary"
+				placeholder={`Enter ${label}...`}
 				label={label}
 				variant="filled"
 				fullWidth
@@ -104,59 +127,62 @@ class Create extends Component {
 			case sectionTitle:
 				form = (
 					<LegendContainer name={"Section Title"} color={color}>
-						{text("text")}
+						{text("Section Title")}
 					</LegendContainer>
 				);
 				break;
 			case subTitle:
 				form = (
 					<LegendContainer name={"Subtitle"} color={color}>
-						{text("text")}
+						{text("Subtitle")}
 					</LegendContainer>
 				);
 				break;
 			case body:
 				form = (
 					<LegendContainer name={"Body"} color={color}>
-						{text("text")}
+						{text("Body")}
 					</LegendContainer>
 				);
 				break;
 			case tex:
 				form = (
 					<LegendContainer name={"TeX"} color={color}>
-						{text("text")}
+						{text("TeX")}
 					</LegendContainer>
 				);
 				break;
 			case embed:
 				form = (
 					<LegendContainer name={"Embed"} color={color}>
-						<TextField
-							color="secondary"
-							label={"Height"}
-							type="number"
-							variant="filled"
-							value={currData.height}
-							onChange={(e) => {
-								this.editEmbed(index, "", -1, e.target.value);
-							}}
-						/>
-						<TextField
-							color="secondary"
-							label={"Width"}
-							type="number"
-							variant="filled"
+						<div style={{ color: "#d04853" }}>width</div>
+						<Slider
+							valueLabelDisplay="auto"
+							min={0}
+							max={2000}
 							value={currData.width}
-							onChange={(e) => {
-								this.editEmbed(index, "", e.target.value, -1);
+							style={{ color: "#d04853" }}
+							onChange={(e, n) => {
+								this.editEmbed(index, "", n, -1);
 							}}
-						/>
-						<TextField
-							color="secondary"
+						></Slider>
+						<div style={{ color: "#155676" }}>height</div>
+						<Slider
+							value={currData.height}
+							valueLabelDisplay="auto"
+							style={{ color: "#155676" }}
+							min={0}
+							max={2000}
+							onChange={(e, n) => {
+								this.editEmbed(index, "", -1, n);
+							}}
+						></Slider>
+						<InputBase
 							label={"Link Source"}
 							variant="filled"
 							value={currData.src}
+							fullWidth
+							placeholder="url..."
 							onChange={(e) => {
 								this.editEmbed(index, e.target.value, -1, -1);
 							}}
@@ -168,7 +194,20 @@ class Create extends Component {
 				form = <p>Error Occurred, could not match</p>;
 				break;
 		}
-		return form;
+		return (
+			<div style={{ display: "flex", alignItems: "center" }}>
+				<div>
+					<IconButton
+						onClick={() => {
+							this.remove(index);
+						}}
+					>
+						<Close />
+					</IconButton>
+				</div>
+				<div style={{ flex: 2 }}>{form}</div>
+			</div>
+		);
 	}
 	// addComponent(type, data) {
 	// 	this.setState({
@@ -216,47 +255,11 @@ class Create extends Component {
 			<div className={container}>
 				<div className={editor}>
 					<div>
-						<LegendContainer
-							color={this.state.color}
-							name={"Global"}
-						>
-							<div>
-								<div
-									style={{
-										marginTop: "10px",
-										display: "flex",
-									}}
-								>
-									<TextField
-										color="secondary"
-										label="Title"
-										variant="filled"
-										value={this.state.title}
-										onChange={(e) => {
-											this.setState({
-												title: e.target.value,
-											});
-										}}
-									/>
-									{/* <CompactPicker
-										// triangle="hide"
-										onChange={(color, event) => {
-											this.setState({
-												color: color.hex,
-											});
-										}}
-										color={this.state.color}
-										// colors={[
-										// 	"black",
-										// 	...d3.schemeTableau10,
-										// 	...d3.schemeSpectral[10],
-										// ]}
-									/> */}
-								</div>
-							</div>
-						</LegendContainer>
 						{components.map((component, index) => {
-							return this.match(component.type, index);
+							const comp = (
+								<>{this.match(component.type, index)}</>
+							);
+							return comp;
 						})}
 						<div
 							style={{
@@ -308,13 +311,24 @@ class Create extends Component {
 										Add Component
 									</Button>
 								</div>
-								<div>
+								<div
+									style={{
+										display: "flex",
+										marginTop: "10px",
+									}}
+								>
 									<Button
-										onClick={async () => {
-											await this.post();
+										variant="contained"
+										color="primary"
+										fullWidth
+										onClick={() => {
+											this.setState({
+												showDialog:
+													!this.state.showDialog,
+											});
 										}}
 									>
-										Submit Article
+										Publish article
 									</Button>
 								</div>
 							</div>
@@ -331,6 +345,58 @@ class Create extends Component {
 						}}
 					></Renderer>
 				</div>
+				<Dialog open={this.state.showDialog} fullScreen>
+					<DialogActions style={{ float: "left" }}>
+						<Button
+							onClick={() => {
+								this.setState({ showDialog: false, title: "" });
+							}}
+						>
+							Cancel
+						</Button>
+						<TextField
+							color="secondary"
+							placeholder={`Enter here...`}
+							label={"Article Title"}
+							variant="filled"
+							onChange={(e) => {
+								this.setState({
+									title: e.target.value,
+								});
+							}}
+						></TextField>
+						<Button
+							onClick={async () => {
+								await this.post();
+								this.props.goBack();
+							}}
+							variant="outlined"
+							disabled={!this.state.title.length > 0}
+						>
+							Submit Article
+						</Button>
+					</DialogActions>
+					<Divider />
+					<DialogContent>
+						<div
+							style={{
+								display: "flex",
+								justifyContent: "center",
+							}}
+						>
+							<div className={document}>
+								<Renderer
+									components={components}
+									global={{
+										bgColor: this.state.color,
+										textColor: "white",
+										title: this.state.title,
+									}}
+								></Renderer>
+							</div>
+						</div>
+					</DialogContent>
+				</Dialog>
 			</div>
 		);
 	}

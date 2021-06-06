@@ -121,10 +121,13 @@ class index extends Component {
 			selectedArticle: article.data,
 		});
 	}
-	async reload(callback) {
+	async reload(callback, { selectedId = undefined, index = 0 } = {}) {
 		await this.setArticles();
 		this.sortScore(callback);
-		await this.getArticle(this.state.mutatedArticles[0].id);
+
+		await this.getArticle(
+			selectedId ? selectedId : this.state.mutatedArticles[index].id
+		);
 		const { min, max } = getMinMax(this.state.mutatedArticles, {
 			attr: "score",
 		});
@@ -349,7 +352,6 @@ class index extends Component {
 					exec={async (id) => {
 						await this.getArticle(id);
 						this.changeView(1);
-						console.log(id);
 					}}
 				/>
 
@@ -375,10 +377,8 @@ class index extends Component {
 										),
 									}}
 									onClick={async () => {
-										console.log(id);
 										await this.getArticle(id);
 										this.changeView(1);
-										console.log(score);
 									}}
 									onMouseEnter={() => {
 										highlight(id, score);
@@ -421,7 +421,19 @@ class index extends Component {
 				this.state.components,
 				this.state.selectedArticle.id
 			),
-			<Create />,
+			<Create
+				goBack={() => {
+					const idu = this.state.selectedArticle.id;
+					this.changeView(0);
+
+					let callback = this.getSortFunction(
+						this.state.selectedSort
+					);
+					this.reload(callback, {
+						selectedId: idu,
+					});
+				}}
+			/>,
 		];
 		return (
 			<ThemeProvider theme={theme}>
@@ -458,14 +470,18 @@ class index extends Component {
 										<Tab
 											label={view.name}
 											onClick={() => {
+												const idu =
+													this.state.selectedArticle
+														.id;
 												this.changeView(view.index);
 
 												let callback =
 													this.getSortFunction(
 														this.state.selectedSort
 													);
-												console.log(callback);
-												this.reload(callback);
+												this.reload(callback, {
+													selectedId: idu,
+												});
 											}}
 										/>
 									);

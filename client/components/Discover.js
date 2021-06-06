@@ -54,10 +54,10 @@ class Discover extends Component {
 
 		const line = (start, end) => d3.line()([start, end]);
 		// const { min, max } = getMinMax(data, { attr: "score" });
-		console.log(min);
-		console.log(max);
-		console.log(data);
-		console.log(sortedData);
+		// console.log(min);
+		// console.log(max);
+		// console.log(data);
+		// console.log(sortedData);
 		const tickPlotHeight = 40;
 		const tickWidth = 2;
 		const tickHeight = tickPlotHeight;

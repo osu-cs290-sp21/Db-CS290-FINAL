@@ -1,3 +1,4 @@
+// All the imports needed
 const { createPool } = require("mysql");
 const express = require("express");
 const cors = require("cors");
@@ -9,9 +10,12 @@ require("dotenv").config();
 app.use(bodyParser.json({ limit: "50mb" }));
 app.use(bodyParser.urlencoded({ limit: "50mb", extended: false }));
 app.use(cors());
+
+// DBS that I created in mySQL
 const DB_ARTICLES = "ARTICLES";
 const DB_COMPONENTS = "COMPONENTS";
 
+// get connected to the database
 const connectionMessage = "Connected to final";
 const { DB_LIMIT, DB_HOST, DB_USER, DB_PASSWORD, DB, PORT } = process.env;
 const connection = createPool({
@@ -28,6 +32,7 @@ connection.getConnection((errors) => {
 	}
 });
 
+// start of the get requests
 app.get("/get/articles", (req, res) => {
 	const QUERY = `SELECT * FROM ${DB_ARTICLES}`;
 	connection.query(QUERY, (errors, results) => {
@@ -58,6 +63,7 @@ app.get("/get/article/:articleId", (req, res) => {
 
 // Creates Article
 app.post("/post/article", (req, res) => {
+	// this is a spandrel that should be probably done in a better way
 	const { title, color } = req.body;
 	const uuidgen = uuid.v1();
 	const QUERY = `INSERT INTO ${DB_ARTICLES} (title, likes, dislikes, uuid, color, score) VALUES(?, ?, ?, ?, ?, ?)`;
@@ -229,8 +235,32 @@ app.get("/get/components/:articleId", (req, res) => {
 	});
 });
 
-app.get("/", (req, res) => {
-	res.send("working");
+// this will create an article at custom likes
+app.post("/generate", (req, res) => {
+	const { title, score } = req.body;
+	const QUERY = `INSERT INTO ${DB_ARTICLES} (title, likes, dislikes, uuid, color, score) VALUES(?, ?, ?, ?, ?, ?)`;
+	const QUERY_PARAMS = [title, 0, 0, null, null, score];
+
+	connection.query(QUERY, QUERY_PARAMS, (errors, results) => {
+		if (results) {
+			res.status(200).json({ message: "Added to the database" });
+		} else {
+			res.status(404).json({ message: "Could not add to the DataBase" });
+		}
+	});
 });
 
-app.listen(PORT);
+// this will create an article at custom likes
+app.post("/danger", (req, res) => {
+	const QUERY = `DELETE FROM ${DB_ARTICLES}`;
+
+	connection.query(QUERY, (errors, results) => {
+		if (results) {
+			res.status(200).json({ message: "successfully cleared" });
+		} else {
+			res.status(404).json({ message: "Could not add to the DataBase" });
+		}
+	});
+});
+
+app.listen(PORT, () => `listening on http://localhost:${PORT}`);

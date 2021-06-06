@@ -102,9 +102,9 @@ class Discover extends Component {
 									style={{ textAnchor: "middle" }}
 									fill="none"
 								>
-									{title}
+									{title}: {score}
 								</text>
-								{title}
+								{/* {title}  */}
 								<path
 									className={`id${id}`}
 									d={line(

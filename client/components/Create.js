@@ -46,18 +46,15 @@ class Create extends Component {
 	addTemplate(type) {
 		let data;
 		const { sectionTitle, subTitle, body, tex, embed } = this.schema;
+		data = { text: "" }; // default behavior
 		switch (type) {
 			case sectionTitle:
-				data = { text: "Title Placeholder" };
 				break;
 			case subTitle:
-				data = { text: "Subtitle Placeholder" };
 				break;
 			case body:
-				data = { text: "Body Placeholder" };
 				break;
 			case tex:
-				data = { text: "\\LaTeX \\text{ Place Holder}" };
 				break;
 			case embed:
 				data = { width: 300, height: 300, src: "" };
@@ -92,7 +89,9 @@ class Create extends Component {
 	remove(index) {
 		let cpy = this.state.components;
 		cpy.splice(index, 1);
-		this.setState({ components: cpy });
+		this.setState({ components: cpy }, () => {
+			console.log(this.state.components);
+		});
 	}
 	color(type) {
 		return d3.schemeSet1[type - 1];
@@ -111,6 +110,7 @@ class Create extends Component {
 				variant="filled"
 				fullWidth
 				multiline
+				value={currData.text}
 				onChange={(e) => {
 					this.editText(index, e.target.value);
 				}}
@@ -266,7 +266,9 @@ class Create extends Component {
 					<div>
 						{components.map((component, index) => {
 							const comp = (
-								<>{this.match(component.type, index)}</>
+								<div key={index}>
+									{this.match(component.type, index)}
+								</div>
 							);
 							return comp;
 						})}
